@@ -5,25 +5,25 @@
 
 requirejs.config({
     paths: {
-        bootstrap: require.toUrl('/components/bootstrap.min'),
-        jquery: require.toUrl('/components/jquery.min'),
-        'jquery-ui': require.toUrl('/components/jquery-ui/jquery-ui'),
-        'jupyter-js-output-area': require.toUrl('/components/jupyter-js-output-area'),
-        'jupyter-js-services': require.toUrl('/components/jupyter-js-services'),
-        'jupyter-js-widgets': require.toUrl('/components/jupyter-js-widgets'),
-        lodash: require.toUrl('/components/lodash.min'),
-        'ansi-parser': require.toUrl('/components/ansi-parser')
+        // bootstrap: require.toUrl('/components/bootstrap.min'),
+        // jquery: require.toUrl('/components/jquery.min'),
+        // 'jquery-ui': require.toUrl('/components/jquery-ui/jquery-ui'),
+        // 'jupyter-js-output-area': require.toUrl('/components/jupyter-js-output-area'),
+        // 'jupyter-js-services': require.toUrl('/components/jupyter-js-services'),
+        // 'jupyter-js-widgets': require.toUrl('/components/jupyter-js-widgets'),
+        // lodash: require.toUrl('/components/lodash.min'),
+        // 'ansi-parser': require.toUrl('/components/ansi-parser')
     },
     shim : {
-        bootstrap: {
-            deps: [ 'jquery' ]
-        }
+        // bootstrap: {
+        //     deps: [ 'jquery' ]
+        // }
     }
 });
 
-requirejs([
+require([
     'jquery',
-    'jupyter-js-output-area',
+    // 'jupyter-js-output-area',
     'jupyter-js-services',
     'bootstrap',  // required by jupyter-js-widgets
     'jupyter-js-widgets',
@@ -34,7 +34,7 @@ requirejs([
     'ansi-parser'
 ], function(
     $,
-    OutputArea,
+    // OutputArea,
     Services,
     bs,
     Widgets,
@@ -46,10 +46,10 @@ requirejs([
 ) {
     'use strict';
 
-    var OutputType = OutputArea.OutputType;
-    var OutputAreaModel = OutputArea.OutputAreaModel;
-    var OutputAreaWidget = OutputArea.OutputAreaWidget;
-    var StreamName = OutputArea.StreamName;
+    // var OutputType = OutputArea.OutputType;
+    // var OutputAreaModel = OutputArea.OutputAreaModel;
+    // var OutputAreaWidget = OutputArea.OutputAreaWidget;
+    // var StreamName = OutputArea.StreamName;
     var Config = window.jupyter_dashboard.Config;
 
     var $container = $('#dashboard-container');
@@ -78,37 +78,37 @@ requirejs([
             _getCodeCells().each(function() {
                 var $cell = $(this);
 
-                // create a jupyter output area mode and widget view for each
-                // dashboard code cell
-                var model = new OutputAreaModel();
-                var view = new OutputAreaWidget(model);
-                model.outputs.changed.connect(function(sender, args) {
-                    if (args.newValue.data &&
-                        args.newValue.data.hasOwnProperty('text/html')) {
-                        view.addClass('rendered_html');
-                    }
-                });
-
-                // attach the view to the cell dom node
-                view.attach(this);
-
-                // create the widget area and widget subarea dom structure used
-                // by ipywidgets in jupyter
-                var $widgetArea = $('<div class="widget-area">');
-                var $widgetSubArea = $('<div class="widget-subarea">').appendTo($widgetArea);
-                // append the widget area and the output area within the grid cell
-                $cell.append($widgetArea, view.node);
+                // // create a jupyter output area mode and widget view for each
+                // // dashboard code cell
+                // var model = new OutputAreaModel();
+                // var view = new OutputAreaWidget(model);
+                // model.outputs.changed.connect(function(sender, args) {
+                //     if (args.newValue.data &&
+                //         args.newValue.data.hasOwnProperty('text/html')) {
+                //         view.addClass('rendered_html');
+                //     }
+                // });
+                //
+                // // attach the view to the cell dom node
+                // view.attach(this);
+                //
+                // // create the widget area and widget subarea dom structure used
+                // // by ipywidgets in jupyter
+                // var $widgetArea = $('<div class="widget-area">');
+                // var $widgetSubArea = $('<div class="widget-subarea">').appendTo($widgetArea);
+                // // append the widget area and the output area within the grid cell
+                // $cell.append($widgetArea, view.node);
 
                 // request execution of the code associated with the dashboard cell
                 var kernelFuture = Kernel.execute($cell.attr('data-cell-index'), function(msg) {
                     // handle the response to the initial execution request
-                    if (model) {
-                        _consumeMessage(msg, model);
-                    }
+                    // if (model) {
+                    //     _consumeMessage(msg, model);
+                    // }
                 });
                 // track execution replies in order to associate the newly created
                 // widget *subarea* with its output areas and DOM container
-                widgetManager.trackPending(kernelFuture, $widgetSubArea.get(0), model);
+                // widgetManager.trackPending(kernelFuture, $widgetSubArea.get(0), model);
             });
         });
     });

@@ -16,8 +16,8 @@ var webpackStatsOptions = {
     colors: gutil.colors.supportsColor,
     hash: false,
     timings: false,
-    chunks: false,
-    chunkModules: false,  // set this & above to `true` to see which modules are complied in
+    chunks: true,
+    chunkModules: true,  // set this & above to `true` to see which modules are complied in
     modules: false,
     children: true,
     version: false,
@@ -31,10 +31,24 @@ var webpackStatsOptions = {
 gulp.task('webpack:components', function(done) {
     webpack({
             entry: {
-                'jupyter-js-output-area': './node_modules/jupyter-js-notebook/lib/output-area/index.js',
-                'jupyter-js-services': './node_modules/jupyter-js-services/lib/index.js',
-                'jupyter-js-widgets': ['./node_modules/jupyter-js-widgets/src/index.js'],
-                'ansi-parser': './node_modules/ansi-parser/lib/index.js'
+                'dashboard': [
+                    // './node_modules/jupyter-js-notebook/lib/output-area/index.js',
+                    // './node_modules/jupyter-js-services/lib/index.js',
+                    'jupyter-js-services',
+                    // './node_modules/jupyter-js-widgets/src/index.js',
+                    'jupyter-js-widgets',
+                    // './node_modules/ansi-parser/lib/index.js',
+                    'ansi-parser',
+                    './public/js/widget-manager.js',
+                    './public/js/error-indicator.js',
+                    './public/js/kernel.js',
+                    './public/js/layout.js',
+                    './public/js/dashboard.js'
+                ]
+                // 'jupyter-js-output-area': './node_modules/jupyter-js-notebook/lib/output-area/index.js',
+                // 'jupyter-js-services': './node_modules/jupyter-js-services/lib/index.js',
+                // 'jupyter-js-widgets': ['./node_modules/jupyter-js-widgets/src/index.js'],
+                // 'ansi-parser': './node_modules/ansi-parser/lib/index.js'
             },
             module: {
                 loaders: [
@@ -45,21 +59,23 @@ gulp.task('webpack:components', function(done) {
                 ]
             },
             externals: [
-                // 'backbone',      // as of 2016-02-22, only used by *-widgets
-                'bootstrap',
-                'jquery',
-                'jquery-ui',
-                'jupyter-js-output-area',
-                'jupyter-js-services',
-                'jupyter-js-widgets',
-                {
-                    'requirejs': 'require' // loaded from `-services`
-                }
+                // // 'backbone',      // as of 2016-02-22, only used by *-widgets
+                // 'bootstrap',
+                // 'jquery',
+                // 'jquery-ui',
+                // 'jupyter-js-output-area',
+                // 'jupyter-js-services',
+                // 'jupyter-js-widgets',
+                // {
+                //     'requirejs': 'require' // loaded from `-services`
+                // }
+                'nbextensions/urth_widgets/js/init/init'
             ],
             output: {
                 libraryTarget: 'amd',
                 filename: '[name].js',
-                path: './public/components'
+                path: './public/components',
+                publicPath: '/components/'
             },
         }, function(err, stats) {
             if (err) {

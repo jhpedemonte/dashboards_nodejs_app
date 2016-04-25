@@ -37,11 +37,15 @@
         {{else}}
 
             {{#each notebook.cells}}
-                <div class="cell dashboard-cell {{mapCellType cell_type}}" 
+                <div class="cell dashboard-cell {{mapCellType cell_type}}"
                     data-cell-index={{@index}}>
                     </div>
             {{/each}}
         {{/if}}
+        <div class="jupyter-js-widgets-example">
+            <div class="inputarea"></div>
+            <div class="widgetarea"></div>
+        </div>
     </div>
 
     <div class="busy-indicator progress">
@@ -50,7 +54,7 @@
     </div>
 </div>
 
-<script src="/components/require.js" data-main="/js/dashboard.js"></script>
+<script src="/components/require.js" data-main="/components/dashboard.js"></script>
 <script>
     (function() {
         var db = window.jupyter_dashboard = window.jupyter_dashboard || {};
