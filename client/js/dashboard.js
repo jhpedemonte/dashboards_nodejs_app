@@ -8,7 +8,6 @@
 var $ = require('jquery');
 var AnsiParser = require('ansi-parser');
 var Services = require('jupyter-js-services');
-var OutputArea = require('../../node_modules/jupyter-js-notebook/lib/output-area/index');
 
 var Widgets = require('jupyter-js-widgets');
 require('jquery-ui/themes/smoothness/jquery-ui.min.css');
@@ -18,6 +17,7 @@ var WidgetManager = require('./widget-manager');
 var ErrorIndicator = require('./error-indicator');
 var Kernel = require('./kernel');
 var Layout = require('./layout');
+var OutputArea = require('./output');
 
 // ES6 Promise polyfill
 require('es6-promise').polyfill();
@@ -31,10 +31,6 @@ if (Element && !Element.prototype.matches) {
     proto.oMatchesSelector || proto.webkitMatchesSelector;
 }
 
-    var OutputType = OutputArea.OutputType;
-    var OutputAreaModel = OutputArea.OutputAreaModel;
-    var OutputAreaWidget = OutputArea.OutputAreaWidget;
-    var StreamName = OutputArea.StreamName;
     var Config = window.jupyter_dashboard.Config;
 
     var $container = $('#dashboard-container');
@@ -49,6 +45,7 @@ if (Element && !Element.prototype.matches) {
         // do some additional shimming
         _setKernelShims(kernel);
 
+        // initialize a watcher for kernel errors to inform the user
         _registerKernelErrorHandler(kernel);
 
         // initialize an ipywidgets manager
@@ -65,17 +62,17 @@ if (Element && !Element.prototype.matches) {
 
                 // create a jupyter output area mode and widget view for each
                 // dashboard code cell
-                var model = new OutputAreaModel();
-                var view = new OutputAreaWidget(model);
-                model.outputs.changed.connect(function(sender, args) {
-                    if (args.newValue.data &&
-                        args.newValue.data.hasOwnProperty('text/html')) {
-                        view.addClass('rendered_html');
-                    }
-                });
+                var view = new OutputArea();
+                // TODO
+                // model.outputs.changed.connect(function(sender, args) {
+                //     if (args.newValue.data &&
+                //         args.newValue.data.hasOwnProperty('text/html')) {
+                //         view.addClass('rendered_html');
+                //     }
+                // });
 
                 // attach the view to the cell dom node
-                view.attach(this);
+                // view.attach(this);
 
                 // create the widget area and widget subarea dom structure used
                 // by ipywidgets in jupyter
@@ -87,13 +84,13 @@ if (Element && !Element.prototype.matches) {
                 // request execution of the code associated with the dashboard cell
                 var kernelFuture = Kernel.execute($cell.attr('data-cell-index'), function(msg) {
                     // handle the response to the initial execution request
-                    if (model) {
-                        _consumeMessage(msg, model);
+                    if (view) {
+                        _consumeMessage(msg, view);
                     }
                 });
                 // track execution replies in order to associate the newly created
                 // widget *subarea* with its output areas and DOM container
-                widgetManager.trackPending(kernelFuture, $widgetSubArea.get(0), model);
+                widgetManager.trackPending(kernelFuture, $widgetSubArea.get(0), view);
             });
         })
         .catch(function(err) {
@@ -129,6 +126,7 @@ if (Element && !Element.prototype.matches) {
         });
     }
 
+    // shim kernel object on notebook for backward compatibility
     function _setKernelShims(kernel) {
         var nb = window.Jupyter.notebook;
         nb.kernel = kernel;
@@ -199,7 +197,7 @@ if (Element && !Element.prototype.matches) {
         },
         stream: function(msg, outputAreaModel) {
             var output = {};
-            output.outputType = OutputType.Stream;
+            output.output_type = 'stream';
             output.text = msg.content.text;
             switch(msg.content.name) {
                 case "stderr":
@@ -207,7 +205,7 @@ if (Element && !Element.prototype.matches) {
                   console.error(msg.content.name, msg.content.text);
                   break;
                 case "stdout":
-                  output.name = StreamName.StdOut;
+                  output.name = 'stdout';
                   outputAreaModel.add(output);
                   break;
                 default:
@@ -216,14 +214,14 @@ if (Element && !Element.prototype.matches) {
         },
         display_data: function(msg, outputAreaModel) {
             var output = {};
-            output.outputType = OutputType.DisplayData;
+            output.output_type = 'display_data';
             output.data = msg.content.data;
             output.metadata = msg.content.metadata;
             outputAreaModel.add(output);
         },
         execute_result: function(msg, outputAreaModel) {
             var output = {};
-            output.outputType = OutputType.ExecuteResult;
+            output.output_type = 'execute_result';
             output.data = msg.content.data;
             output.metadata = msg.content.metadata;
             output.execution_count = msg.content.execution_count;

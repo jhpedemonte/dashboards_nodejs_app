@@ -217,7 +217,7 @@ var Widgets = require('jupyter-js-widgets');
                 return {
                     cell_type: 'code', // each _pendingExecution cell is code
                     output_area: {
-                        outputs: cells[id].outputAreaModel.outputs.internal
+                        outputs: cells[id].outputAreaModel.outputs
                     }
                 };
             });
